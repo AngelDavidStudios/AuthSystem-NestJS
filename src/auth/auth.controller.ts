@@ -13,6 +13,7 @@ import {
 import { ConfigService } from '@nestjs/config';
 import type { Request, Response } from 'express';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { SessionAuthGuard } from './guards/session-auth.guard';
 import { AuthService } from './auth.service';
 import type { AuthenticatedUser } from './strategies/cognito-jwt.strategy';
 import type { Env } from '../config/env.schema';
@@ -120,20 +121,19 @@ export class AuthController {
   }
 
   @Get('me')
+  @UseGuards(SessionAuthGuard)
   me(@Req() req: Request) {
-    if (!req.session.user) {
-      throw new UnauthorizedException('No active session');
-    }
     return req.session.user;
   }
 
   @Post('refresh')
   @HttpCode(HttpStatus.OK)
+  @UseGuards(SessionAuthGuard)
   async refresh(@Req() req: Request): Promise<{ ok: true; expiresIn: number }> {
     const tokens = req.session.tokens;
     const user = req.session.user;
     if (!tokens || !user?.username) {
-      throw new UnauthorizedException('No active session to refresh');
+      throw new UnauthorizedException('Session has no tokens to refresh');
     }
     const refreshed = await this.authService.refreshTokens(
       tokens.refreshToken,

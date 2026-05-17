@@ -1,3 +1,4 @@
+import '../../session/session.types';
 import {
   CanActivate,
   ExecutionContext,
@@ -5,8 +6,13 @@ import {
   Injectable,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
+import type { Request } from 'express';
 import { ROLES_KEY } from '../decorators/roles.decorator';
 import type { AuthenticatedUser } from '../../auth/strategies/cognito-jwt.strategy';
+
+interface RequestWithUser extends Request {
+  user?: AuthenticatedUser;
+}
 
 @Injectable()
 export class RolesGuard implements CanActivate {
@@ -22,10 +28,8 @@ export class RolesGuard implements CanActivate {
       return true;
     }
 
-    const req = context
-      .switchToHttp()
-      .getRequest<{ user?: AuthenticatedUser }>();
-    const userGroups = req.user?.groups ?? [];
+    const req = context.switchToHttp().getRequest<RequestWithUser>();
+    const userGroups = req.session?.user?.groups ?? req.user?.groups ?? [];
 
     const hasRole = requiredRoles.some((role) => userGroups.includes(role));
     if (!hasRole) {

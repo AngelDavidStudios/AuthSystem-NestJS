@@ -6,13 +6,13 @@ import {
   Post,
   UseGuards,
 } from '@nestjs/common';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { HybridAuthGuard } from '../auth/guards/hybrid-auth.guard';
 import { KmsService } from './kms.service';
 import { EncryptDto } from './dto/encrypt.dto';
 import { DecryptDto } from './dto/decrypt.dto';
 
 @Controller('kms')
-@UseGuards(JwtAuthGuard)
+@UseGuards(HybridAuthGuard)
 export class KmsController {
   constructor(private readonly kmsService: KmsService) {}
 
