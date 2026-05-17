@@ -11,6 +11,7 @@ import {
   NotAuthorizedException,
 } from '@aws-sdk/client-cognito-identity-provider';
 import { createHmac } from 'crypto';
+import type { Env } from '../config/env.schema';
 
 export interface RefreshedTokens {
   accessToken?: string;
@@ -22,17 +23,19 @@ export interface RefreshedTokens {
 @Injectable()
 export class AuthService {
   private readonly cognito: CognitoIdentityProviderClient;
-  private readonly clientIdA: string | undefined;
-  private readonly clientSecretA: string | undefined;
-  private readonly clientIdB: string | undefined;
+  private readonly clientIdA: string;
+  private readonly clientSecretA: string;
+  private readonly clientIdB: string;
 
-  constructor(private readonly config: ConfigService) {
+  constructor(private readonly config: ConfigService<Env, true>) {
     this.cognito = new CognitoIdentityProviderClient({
-      region: this.config.getOrThrow<string>('COGNITO_REGION'),
+      region: this.config.get('COGNITO_REGION', { infer: true }),
     });
-    this.clientIdA = this.config.get<string>('COGNITO_CLIENT_ID_A');
-    this.clientSecretA = this.config.get<string>('COGNITO_CLIENT_SECRET_A');
-    this.clientIdB = this.config.get<string>('COGNITO_CLIENT_ID_B');
+    this.clientIdA = this.config.get('COGNITO_CLIENT_ID_A', { infer: true });
+    this.clientSecretA = this.config.get('COGNITO_CLIENT_SECRET_A', {
+      infer: true,
+    });
+    this.clientIdB = this.config.get('COGNITO_CLIENT_ID_B', { infer: true });
   }
 
   async refreshTokens(

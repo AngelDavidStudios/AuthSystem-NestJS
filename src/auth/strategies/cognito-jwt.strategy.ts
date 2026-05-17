@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { passportJwtSecret } from 'jwks-rsa';
+import type { Env } from '../../config/env.schema';
 
 export interface CognitoJwtPayload {
   sub: string;
@@ -25,15 +26,13 @@ export interface AuthenticatedUser {
 
 @Injectable()
 export class CognitoJwtStrategy extends PassportStrategy(Strategy, 'jwt') {
-  constructor(config: ConfigService) {
-    const region = config.getOrThrow<string>('COGNITO_REGION');
-    const userPoolId = config.getOrThrow<string>('COGNITO_USER_POOL_ID');
-    const jwksUri = config.getOrThrow<string>('COGNITO_JWKS_URL');
-    const clientIdA = config.get<string>('COGNITO_CLIENT_ID_A');
-    const clientIdB = config.get<string>('COGNITO_CLIENT_ID_B');
-    const audiences = [clientIdA, clientIdB].filter(
-      (v): v is string => !!v && v.length > 0,
-    );
+  constructor(config: ConfigService<Env, true>) {
+    const region = config.get('COGNITO_REGION', { infer: true });
+    const userPoolId = config.get('COGNITO_USER_POOL_ID', { infer: true });
+    const jwksUri = config.get('COGNITO_JWKS_URL', { infer: true });
+    const clientIdA = config.get('COGNITO_CLIENT_ID_A', { infer: true });
+    const clientIdB = config.get('COGNITO_CLIENT_ID_B', { infer: true });
+    const audiences = [clientIdA, clientIdB].filter((v) => v.length > 0);
 
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
