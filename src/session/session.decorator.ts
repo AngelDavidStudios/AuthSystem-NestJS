@@ -1,3 +1,4 @@
+import './session.types';
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
 import type { IronSession, IronSessionData } from 'iron-session';
 import type { Request } from 'express';

@@ -129,9 +129,7 @@ export class AuthController {
 
   @Post('refresh')
   @HttpCode(HttpStatus.OK)
-  async refresh(
-    @Req() req: Request,
-  ): Promise<{ ok: true; expiresIn: number }> {
+  async refresh(@Req() req: Request): Promise<{ ok: true; expiresIn: number }> {
     const tokens = req.session.tokens;
     const user = req.session.user;
     if (!tokens || !user?.username) {

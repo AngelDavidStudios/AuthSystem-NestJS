@@ -84,9 +84,9 @@ export class AuthService {
       code,
       redirect_uri: this.redirectUri,
     });
-    const basic = Buffer.from(
-      `${this.clientId}:${this.clientSecret}`,
-    ).toString('base64');
+    const basic = Buffer.from(`${this.clientId}:${this.clientSecret}`).toString(
+      'base64',
+    );
 
     const res = await fetch(url, {
       method: 'POST',

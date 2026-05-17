@@ -1,4 +1,5 @@
 import 'iron-session';
+import type { IronSession, IronSessionData } from 'iron-session';
 
 declare module 'iron-session' {
   interface IronSessionData {
@@ -19,6 +20,15 @@ declare module 'iron-session' {
       returnTo: string;
       origin: 'A' | 'B';
     };
+  }
+}
+
+declare global {
+  // eslint-disable-next-line @typescript-eslint/no-namespace
+  namespace Express {
+    interface Request {
+      session: IronSession<IronSessionData>;
+    }
   }
 }
 

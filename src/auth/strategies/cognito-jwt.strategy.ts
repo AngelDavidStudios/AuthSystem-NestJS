@@ -30,9 +30,7 @@ export class CognitoJwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     const region = config.get('COGNITO_REGION', { infer: true });
     const userPoolId = config.get('COGNITO_USER_POOL_ID', { infer: true });
     const jwksUri = config.get('COGNITO_JWKS_URL', { infer: true });
-    const clientIdA = config.get('COGNITO_CLIENT_ID_A', { infer: true });
-    const clientIdB = config.get('COGNITO_CLIENT_ID_B', { infer: true });
-    const audiences = [clientIdA, clientIdB].filter((v) => v.length > 0);
+    const clientId = config.get('COGNITO_CLIENT_ID', { infer: true });
 
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -44,7 +42,7 @@ export class CognitoJwtStrategy extends PassportStrategy(Strategy, 'jwt') {
       }),
       issuer: `https://cognito-idp.${region}.amazonaws.com/${userPoolId}`,
       algorithms: ['RS256'],
-      audience: audiences.length > 0 ? audiences : undefined,
+      audience: clientId,
     });
   }
 
