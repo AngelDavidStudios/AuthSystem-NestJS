@@ -10,8 +10,13 @@ declare module 'iron-session' {
       groups: string[];
     };
     tokens?: {
-      idToken: string;
-      accessToken: string;
+      // Only the refresh_token is kept in the session because:
+      //   - id_token claims were already extracted into `user` on callback
+      //   - access_token is unused (Sistema C calls Cognito Admin API with IAM,
+      //     not with the user's access token)
+      // Storing all three pushes the encrypted cookie past the browser's
+      // ~4KB hard limit. Keeping only the refresh_token also makes /auth/refresh
+      // possible without re-doing the OIDC dance.
       refreshToken: string;
       expiresAt: number;
     };

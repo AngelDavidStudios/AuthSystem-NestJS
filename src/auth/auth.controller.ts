@@ -81,8 +81,6 @@ export class AuthController {
       groups: claims['cognito:groups'] ?? [],
     };
     req.session.tokens = {
-      idToken: tokens.id_token,
-      accessToken: tokens.access_token,
       refreshToken: tokens.refresh_token,
       expiresAt: Date.now() + tokens.expires_in * 1000,
     };
@@ -140,8 +138,6 @@ export class AuthController {
       user.username,
     );
     req.session.tokens = {
-      idToken: refreshed.id_token,
-      accessToken: refreshed.access_token,
       refreshToken: refreshed.refresh_token,
       expiresAt: Date.now() + refreshed.expires_in * 1000,
     };
