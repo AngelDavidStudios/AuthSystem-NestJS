@@ -19,7 +19,6 @@ export const EnvSchema = z.object({
   COGNITO_DOMAIN: z.string().min(1),
   COGNITO_JWKS_URL: z.url(),
   COGNITO_REDIRECT_URI: z.url(),
-  COGNITO_LOGOUT_URI: z.url(),
 
   // KMS
   KMS_KEY_ID: z.string().min(1),

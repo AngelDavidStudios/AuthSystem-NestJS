@@ -38,7 +38,8 @@ export class AuthService {
   private readonly clientSecret: string;
   private readonly domain: string;
   private readonly redirectUri: string;
-  private readonly logoutUri: string;
+  private readonly frontendUrlA: string;
+  private readonly frontendUrlB: string;
 
   constructor(private readonly config: ConfigService<Env, true>) {
     this.cognito = new CognitoIdentityProviderClient({
@@ -50,7 +51,8 @@ export class AuthService {
     });
     this.domain = this.config.get('COGNITO_DOMAIN', { infer: true });
     this.redirectUri = this.config.get('COGNITO_REDIRECT_URI', { infer: true });
-    this.logoutUri = this.config.get('COGNITO_LOGOUT_URI', { infer: true });
+    this.frontendUrlA = this.config.get('FRONTEND_URL_A', { infer: true });
+    this.frontendUrlB = this.config.get('FRONTEND_URL_B', { infer: true });
   }
 
   generateState(): string {
@@ -68,10 +70,11 @@ export class AuthService {
     return `https://${this.domain}/oauth2/authorize?${params.toString()}`;
   }
 
-  buildLogoutUrl(): string {
+  buildLogoutUrl(origin: 'A' | 'B'): string {
+    const logoutUri = origin === 'B' ? this.frontendUrlB : this.frontendUrlA;
     const params = new URLSearchParams({
       client_id: this.clientId,
-      logout_uri: this.logoutUri,
+      logout_uri: logoutUri,
     });
     return `https://${this.domain}/logout?${params.toString()}`;
   }

@@ -92,9 +92,13 @@ export class AuthController {
 
   @Post('logout')
   @HttpCode(HttpStatus.OK)
-  logout(@Req() req: Request): { logoutUrl: string } {
+  logout(
+    @Query('origin') originRaw: string | undefined,
+    @Req() req: Request,
+  ): { logoutUrl: string } {
+    const origin: 'A' | 'B' = originRaw === 'B' ? 'B' : 'A';
     req.session.destroy();
-    return { logoutUrl: this.authService.buildLogoutUrl() };
+    return { logoutUrl: this.authService.buildLogoutUrl(origin) };
   }
 
   @Get('session')
