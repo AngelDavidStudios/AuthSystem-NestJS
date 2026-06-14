@@ -7,30 +7,41 @@ on:
     branches: [main]
 
 jobs:
-  test:
-    name: Lint, build y tests
+  lint:
+    name: Lint
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4 # lee la versión del campo packageManager
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 24
-          cache: pnpm
-
-      - run: pnpm install --frozen-lockfile
+      - uses: ./.github/actions/setup
       - run: pnpm run lint
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
       - run: pnpm run build
+
+  test-unit:
+    name: Tests unitarios
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
       - run: pnpm run test
+
+  test-e2e:
+    name: Tests e2e
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
       - run: pnpm run test:e2e
 
   deploy:
     name: Deploy a AWS Lambda
-    needs: test
+    needs: [lint, build, test-unit, test-e2e]
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     runs-on: ubuntu-latest
     permissions:
@@ -41,26 +52,16 @@ jobs:
       FUNCTION_NAME: authsystem-c
     steps:
       - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 24
-          cache: pnpm
-
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm run build # genera dist/ (incluye dist/lambda.js)
-
-      # Reinstala solo deps de producción con node_modules plano (hoisted), que
-      # es lo que Lambda puede resolver (los symlinks de pnpm no funcionan ahí).
-      - name: Instalar deps de producción (hoisted)
-        run: pnpm install --prod --node-linker=hoisted --frozen-lockfile
+      # Bundlea con esbuild en un solo archivo (lambda-bundle/index.js, ~3MB).
+      # El AWS SDK v3 se externaliza (el runtime de Lambda ya lo trae), así no
+      # se empaqueta node_modules (que excedía el límite de 250MB de Lambda).
+      - name: Build + bundle para Lambda
+        run: pnpm run build:lambda
 
       - name: Empaquetar function.zip
-        run: zip -rq function.zip dist node_modules package.json
+        run: cd lambda-bundle && zip -rq ../function.zip . && cd ..
 
       # OIDC: asume el rol IAM y obtiene credenciales temporales (sin llaves).
       - name: Configurar credenciales AWS (OIDC)

@@ -1,0 +1,17 @@
+name: Setup
+description: Configura pnpm + Node 24 e instala dependencias (frozen lockfile)
+runs:
+  using: composite
+  steps:
+    - name: Setup pnpm
+      uses: pnpm/action-setup@v4 # lee la versión del campo packageManager
+
+    - name: Setup Node
+      uses: actions/setup-node@v4
+      with:
+        node-version: 24
+        cache: pnpm
+
+    - name: Instalar dependencias
+      run: pnpm install --frozen-lockfile
+      shell: bash
