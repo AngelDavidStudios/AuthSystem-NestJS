@@ -3,6 +3,8 @@ import serverlessExpress from '@codegenie/serverless-express';
 import type {
   APIGatewayProxyEventV2,
   APIGatewayProxyResultV2,
+  Callback,
+  Context,
   Handler,
 } from 'aws-lambda';
 import type { Express } from 'express';
@@ -33,7 +35,15 @@ async function bootstrap(): Promise<FnUrlHandler> {
   return proxy;
 }
 
-export const handler: FnUrlHandler = async (event, context, callback) => {
+export const handler = async (
+  event: APIGatewayProxyEventV2,
+  context: Context,
+  callback: Callback<APIGatewayProxyResultV2>,
+): Promise<APIGatewayProxyResultV2> => {
   cachedHandler = cachedHandler ?? (await bootstrap());
-  return cachedHandler(event, context, callback);
+  return (await cachedHandler(
+    event,
+    context,
+    callback,
+  )) as APIGatewayProxyResultV2;
 };
