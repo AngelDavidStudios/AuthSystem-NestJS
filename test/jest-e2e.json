@@ -6,6 +6,9 @@
   "transform": {
     "^.+\\.(t|j)s$": "ts-jest"
   },
+  "moduleNameMapper": {
+    "^jwks-rsa$": "<rootDir>/utils/jwks-rsa.stub.ts"
+  },
   "testEnvironment": "node",
   "setupFiles": ["<rootDir>/setup-e2e.ts"]
 }

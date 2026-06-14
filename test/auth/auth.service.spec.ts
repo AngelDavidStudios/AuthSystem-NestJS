@@ -77,7 +77,9 @@ describe('AuthService', () => {
         iat: 100,
         aud: 'client123',
       };
-      const encoded = Buffer.from(JSON.stringify(payload)).toString('base64url');
+      const encoded = Buffer.from(JSON.stringify(payload)).toString(
+        'base64url',
+      );
       const token = `header.${encoded}.signature`;
 
       const claims = service.decodeIdToken(token);

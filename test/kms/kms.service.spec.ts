@@ -34,12 +34,10 @@ describe('KmsService (envelope encryption)', () => {
 
   beforeEach(() => {
     kmsMock.reset();
-    kmsMock
-      .on(GenerateDataKeyCommand)
-      .callsFake(() => ({
-        Plaintext: new Uint8Array(MASTER_KEY),
-        CiphertextBlob: new Uint8Array(BLOB),
-      }));
+    kmsMock.on(GenerateDataKeyCommand).callsFake(() => ({
+      Plaintext: new Uint8Array(MASTER_KEY),
+      CiphertextBlob: new Uint8Array(BLOB),
+    }));
     kmsMock.on(DecryptCommand).callsFake(() => ({
       Plaintext: new Uint8Array(MASTER_KEY),
     }));

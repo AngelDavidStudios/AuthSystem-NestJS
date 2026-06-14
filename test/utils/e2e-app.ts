@@ -55,9 +55,7 @@ export async function loginAs(
 
   const agent = request.agent(app.getHttpServer());
   const loginRes = await agent.get(`/auth/login?origin=${origin}`);
-  const state = new URL(
-    loginRes.headers.location as string,
-  ).searchParams.get('state');
+  const state = new URL(loginRes.headers.location).searchParams.get('state');
   await agent.get(`/auth/callback?code=fake-code&state=${state}`);
 
   return agent;
