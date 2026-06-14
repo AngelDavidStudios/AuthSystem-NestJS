@@ -17,6 +17,7 @@ jobs:
 
   build:
     name: Build
+    needs: lint
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -25,6 +26,7 @@ jobs:
 
   test-unit:
     name: Tests unitarios
+    needs: build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -33,6 +35,7 @@ jobs:
 
   test-e2e:
     name: Tests e2e
+    needs: test-unit
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -41,7 +44,7 @@ jobs:
 
   deploy:
     name: Deploy a AWS Lambda
-    needs: [lint, build, test-unit, test-e2e]
+    needs: test-e2e
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     runs-on: ubuntu-latest
     permissions:
