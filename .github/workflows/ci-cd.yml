@@ -1,0 +1,79 @@
+name: CI/CD
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    name: Lint, build y tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4 # lee la versión del campo packageManager
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run lint
+      - run: pnpm run build
+      - run: pnpm run test
+      - run: pnpm run test:e2e
+
+  deploy:
+    name: Deploy a AWS Lambda
+    needs: test
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write # requerido para el OIDC con AWS
+      contents: read
+    env:
+      AWS_REGION: us-east-1
+      FUNCTION_NAME: authsystem-c
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run build # genera dist/ (incluye dist/lambda.js)
+
+      # Reinstala solo deps de producción con node_modules plano (hoisted), que
+      # es lo que Lambda puede resolver (los symlinks de pnpm no funcionan ahí).
+      - name: Instalar deps de producción (hoisted)
+        run: pnpm install --prod --node-linker=hoisted --frozen-lockfile
+
+      - name: Empaquetar function.zip
+        run: zip -rq function.zip dist node_modules package.json
+
+      # OIDC: asume el rol IAM y obtiene credenciales temporales (sin llaves).
+      - name: Configurar credenciales AWS (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Actualizar código de la Lambda
+        run: |
+          set -euo pipefail
+          aws lambda update-function-code \
+            --function-name "$FUNCTION_NAME" \
+            --zip-file fileb://function.zip \
+            --publish
+          aws lambda wait function-updated --function-name "$FUNCTION_NAME"
