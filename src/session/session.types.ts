@@ -8,6 +8,10 @@ declare module 'iron-session' {
       email?: string;
       username?: string;
       groups: string[];
+      // Sistema por el que el usuario inició sesión (A o B). Los Admins quedan
+      // confinados a este sistema: el otro SPA los ve como NO autenticados
+      // (se queda en login). Los usuarios no-admin conservan SSO en ambos.
+      loginOrigin: 'A' | 'B';
     };
     tokens?: {
       // Only the refresh_token is kept in the session because:

@@ -1,6 +1,7 @@
 import {
   Controller,
   Get,
+  Headers,
   HttpCode,
   HttpStatus,
   Post,
@@ -16,6 +17,7 @@ import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { SessionAuthGuard } from './guards/session-auth.guard';
 import { AuthService } from './auth.service';
 import type { AuthenticatedUser } from './strategies/cognito-jwt.strategy';
+import { isSessionVisibleToSystem } from './system-access.util';
 import type { Env } from '../config/env.schema';
 
 interface AuthenticatedRequest extends Request {
@@ -79,6 +81,7 @@ export class AuthController {
       email: claims.email,
       username: claims['cognito:username'],
       groups: claims['cognito:groups'] ?? [],
+      loginOrigin: oauth.origin,
     };
     req.session.tokens = {
       refreshToken: tokens.refresh_token,
@@ -102,12 +105,20 @@ export class AuthController {
   }
 
   @Get('session')
-  getSession(@Req() req: Request): {
+  getSession(
+    @Req() req: Request,
+    @Headers('x-system') system: string | undefined,
+  ): {
     authenticated: boolean;
     user?: { sub: string; email?: string; username?: string; groups: string[] };
   } {
-    if (!req.session.user) return { authenticated: false };
-    return { authenticated: true, user: req.session.user };
+    const user = req.session.user;
+    // Confinamiento: un Admin solo está "autenticado" en su sistema de origen.
+    // Para el otro SPA devolvemos authenticated:false → se queda en login.
+    if (!user || !isSessionVisibleToSystem(user, system)) {
+      return { authenticated: false };
+    }
+    return { authenticated: true, user };
   }
 
   // ─────────── Bearer compat (Postman, server-to-server) ───────────

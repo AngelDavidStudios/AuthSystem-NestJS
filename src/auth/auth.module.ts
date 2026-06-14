@@ -7,6 +7,7 @@ import { CognitoJwtStrategy } from './strategies/cognito-jwt.strategy';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { SessionAuthGuard } from './guards/session-auth.guard';
 import { HybridAuthGuard } from './guards/hybrid-auth.guard';
+import { SystemAccessGuard } from './guards/system-access.guard';
 
 @Module({
   imports: [ConfigModule, PassportModule.register({ defaultStrategy: 'jwt' })],
@@ -17,12 +18,14 @@ import { HybridAuthGuard } from './guards/hybrid-auth.guard';
     JwtAuthGuard,
     SessionAuthGuard,
     HybridAuthGuard,
+    SystemAccessGuard,
   ],
   exports: [
     AuthService,
     JwtAuthGuard,
     SessionAuthGuard,
     HybridAuthGuard,
+    SystemAccessGuard,
     PassportModule,
   ],
 })
