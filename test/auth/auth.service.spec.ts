@@ -53,16 +53,11 @@ describe('AuthService', () => {
   });
 
   describe('buildLogoutUrl', () => {
-    it('usa FRONTEND_URL_A como logout_uri para origin A', () => {
-      const url = new URL(service.buildLogoutUrl('A'));
+    it('arma la URL de /logout con el logout_uri dado', () => {
+      const url = new URL(service.buildLogoutUrl('https://a.netlify.app'));
       expect(url.pathname).toBe('/logout');
       expect(url.searchParams.get('client_id')).toBe('client123');
-      expect(url.searchParams.get('logout_uri')).toBe('http://localhost:5173');
-    });
-
-    it('usa FRONTEND_URL_B como logout_uri para origin B', () => {
-      const url = new URL(service.buildLogoutUrl('B'));
-      expect(url.searchParams.get('logout_uri')).toBe('http://localhost:5174');
+      expect(url.searchParams.get('logout_uri')).toBe('https://a.netlify.app');
     });
   });
 

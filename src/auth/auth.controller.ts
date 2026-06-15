@@ -18,6 +18,7 @@ import { SessionAuthGuard } from './guards/session-auth.guard';
 import { AuthService } from './auth.service';
 import type { AuthenticatedUser } from './strategies/cognito-jwt.strategy';
 import { isSessionVisibleToSystem } from './system-access.util';
+import { buildAllowlist } from '../config/origins';
 import type { Env } from '../config/env.schema';
 
 interface AuthenticatedRequest extends Request {
@@ -28,6 +29,7 @@ interface AuthenticatedRequest extends Request {
 export class AuthController {
   private readonly defaultReturnA: string;
   private readonly defaultReturnB: string;
+  private readonly allowlist: string[];
 
   constructor(
     private readonly authService: AuthService,
@@ -35,6 +37,7 @@ export class AuthController {
   ) {
     this.defaultReturnA = config.get('FRONTEND_URL_A', { infer: true });
     this.defaultReturnB = config.get('FRONTEND_URL_B', { infer: true });
+    this.allowlist = buildAllowlist(config);
   }
 
   // ─────────── BFF — OIDC orquestado por Sistema C ───────────
@@ -97,11 +100,14 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   logout(
     @Query('origin') originRaw: string | undefined,
+    @Query('return_to') returnTo: string | undefined,
     @Req() req: Request,
   ): { logoutUrl: string } {
     const origin: 'A' | 'B' = originRaw === 'B' ? 'B' : 'A';
     req.session.destroy();
-    return { logoutUrl: this.authService.buildLogoutUrl(origin) };
+    const fallback = origin === 'B' ? this.defaultReturnB : this.defaultReturnA;
+    const logoutUri = this.resolveLogoutUri(returnTo, fallback);
+    return { logoutUrl: this.authService.buildLogoutUrl(logoutUri) };
   }
 
   @Get('session')
@@ -166,13 +172,30 @@ export class AuthController {
     const base = origin === 'B' ? this.defaultReturnB : this.defaultReturnA;
     if (!returnTo) return base;
     try {
+      // URL absoluta: se acepta si su origen está en la allowlist; así el BFF
+      // redirige de vuelta al frontend que inició (localhost, Netlify, Vercel…).
       const candidate = new URL(returnTo);
-      const allowed = new URL(base);
-      if (candidate.origin !== allowed.origin) return base;
-      return returnTo;
+      return this.allowlist.includes(candidate.origin) ? returnTo : base;
     } catch {
+      // Path relativo: se cuelga del frontend por defecto del origin.
       const path = returnTo.startsWith('/') ? returnTo : `/${returnTo}`;
       return base + path;
+    }
+  }
+
+  /** logout_uri para Cognito: el origen que cierra sesión si está permitido. */
+  private resolveLogoutUri(
+    returnTo: string | undefined,
+    fallback: string,
+  ): string {
+    if (!returnTo) return fallback;
+    try {
+      const candidate = new URL(returnTo);
+      return this.allowlist.includes(candidate.origin)
+        ? candidate.origin
+        : fallback;
+    } catch {
+      return fallback;
     }
   }
 }

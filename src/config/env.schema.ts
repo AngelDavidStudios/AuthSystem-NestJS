@@ -32,6 +32,10 @@ export const EnvSchema = z.object({
   // Allowed SPA origins (CORS + post-login redirect targets)
   FRONTEND_URL_A: z.url(),
   FRONTEND_URL_B: z.url(),
+  // Orígenes adicionales permitidos (CORS + validación de return_to/logout),
+  // separados por comas. FRONTEND_URL_A/B siempre se incluyen además de estos.
+  // Ej: "http://localhost:5173,http://localhost:5174,https://a.netlify.app"
+  ALLOWED_ORIGINS: z.string().default(''),
 
   // App
   PORT: z.coerce.number().int().positive().default(3000),

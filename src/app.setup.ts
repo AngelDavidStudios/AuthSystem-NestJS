@@ -1,5 +1,6 @@
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { buildAllowlist } from './config/origins';
 import type { Env } from './config/env.schema';
 
 /**
@@ -14,10 +15,7 @@ export function configureApp(app: INestApplication): void {
   const config = app.get<ConfigService<Env, true>>(ConfigService);
 
   app.enableCors({
-    origin: [
-      config.get('FRONTEND_URL_A', { infer: true }),
-      config.get('FRONTEND_URL_B', { infer: true }),
-    ],
+    origin: buildAllowlist(config),
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-System'],
