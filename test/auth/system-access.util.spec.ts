@@ -31,6 +31,12 @@ describe('system-access.util', () => {
       expect(isSessionVisibleToSystem(u, 'B')).toBe(true);
     });
 
+    it('Managers NO se confinan: SSO en ambos sistemas (solo Admins se confina)', () => {
+      const managerFromA = user(['Managers'], 'A');
+      expect(isSessionVisibleToSystem(managerFromA, 'A')).toBe(true);
+      expect(isSessionVisibleToSystem(managerFromA, 'B')).toBe(true);
+    });
+
     it('usuario sin grupos es visible en ambos', () => {
       const u = user([], 'B');
       expect(isSessionVisibleToSystem(u, 'A')).toBe(true);

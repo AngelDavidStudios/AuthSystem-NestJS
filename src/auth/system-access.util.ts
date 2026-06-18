@@ -13,8 +13,11 @@ interface SessionUserLike {
 /**
  * Confinamiento por sistema de origen.
  *
- * - Usuarios NO-admin: visibles en ambos sistemas (SSO).
- * - Admins: solo visibles en el sistema por el que iniciaron sesión
+ * El confinamiento depende SOLO del grupo `Admins`:
+ * - `Users` y `Managers` (y cualquier no-admin): visibles en ambos sistemas
+ *   (SSO completo). Aunque `Managers` se mapea a "admin" en la UI del frontend,
+ *   NO se confina aquí; solo el grupo Cognito `Admins` lo hace.
+ * - `Admins`: solo visibles en el sistema por el que iniciaron sesión
  *   (`loginOrigin`). El otro SPA los trata como no autenticados → se queda en
  *   login. Un Admin sí puede iniciar sesión directo en cualquiera de los dos.
  *
