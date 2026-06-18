@@ -35,7 +35,9 @@ export default tseslint.config(
   {
     // Los tests usan supertest, cuyas respuestas (`res.body`) y
     // `app.getHttpServer()` son `any`. Relajamos las reglas type-unsafe solo
-    // en la carpeta de tests.
+    // en la carpeta de tests. También: los mocks de Jest usan `async () => …`
+    // sin await (require-await) y se asertan por referencia de método dentro de
+    // `expect(mock.method)` (unbound-method); ambos son patrones idiomáticos.
     files: ['test/**/*.ts'],
     rules: {
       '@typescript-eslint/no-unsafe-member-access': 'off',
@@ -43,6 +45,8 @@ export default tseslint.config(
       '@typescript-eslint/no-unsafe-call': 'off',
       '@typescript-eslint/no-unsafe-return': 'off',
       '@typescript-eslint/no-unsafe-argument': 'off',
+      '@typescript-eslint/require-await': 'off',
+      '@typescript-eslint/unbound-method': 'off',
     },
   },
 );
