@@ -23,6 +23,13 @@ export const EnvSchema = z.object({
   // KMS
   KMS_KEY_ID: z.string().min(1),
 
+  // DynamoDB — tablas del módulo de vacaciones (creadas manualmente en AWS).
+  // En Lambda la región sale del runtime; en local de AWS_REGION del .env.
+  DDB_TABLE_VACATION_REQUESTS: z.string().min(1).default('wfn-vacation-requests'),
+  DDB_TABLE_VACATION_BALANCES: z.string().min(1).default('wfn-vacation-balances'),
+  DDB_TABLE_ORG_NODES: z.string().min(1).default('wfn-org-nodes'),
+  DDB_TABLE_AUDIT_LOGS: z.string().min(1).default('wfn-audit-logs'),
+
   // BFF session (iron-session)
   SESSION_SECRET: z
     .string()
