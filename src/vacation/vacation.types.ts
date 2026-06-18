@@ -71,7 +71,9 @@ export type AuditAction =
   | 'USER_DELETED'
   | 'ROLE_ASSIGNED'
   | 'ROLE_REMOVED'
-  | 'PASSWORD_RESET';
+  | 'PASSWORD_RESET'
+  | 'PROFILE_PICTURE_UPDATED'
+  | 'PROFILE_PICTURE_DELETED';
 
 export type AuditEntityType = 'VacationRequest' | 'OrganizationNode' | 'User';
 
