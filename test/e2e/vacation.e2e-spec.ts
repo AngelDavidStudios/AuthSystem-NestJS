@@ -5,24 +5,26 @@ import { setupInMemoryDynamo } from '../utils/dynamo-mock';
 
 // `loginAs` mintea una sesión con cognito:username = 'tester'. La identidad
 // canónica del módulo es el username (ver VacationService.identityOf), no el sub.
-const SUB = 'tester';
+const USERNAME = 'tester';
 
 describe('Vacation e2e — dispatch, guards y round-trip DynamoDB', () => {
   let app: INestApplication;
+  let ddb: ReturnType<typeof setupInMemoryDynamo>['ddb'];
 
   beforeEach(async () => {
-    setupInMemoryDynamo();
+    ddb = setupInMemoryDynamo().ddb;
     app = await createE2EApp();
   });
 
   afterEach(async () => {
     await app.close();
+    ddb.restore();
   });
 
   it('flujo admin: setBalance → getBalance → createRequest → balance refleja lo pendiente', async () => {
     const agent = await loginAs(app, 'A', ['Admins']);
     const identity = {
-      userId: SUB,
+      userId: USERNAME,
       userEmail: 'tester@example.com',
       userName: 'Tester',
     };
@@ -34,7 +36,7 @@ describe('Vacation e2e — dispatch, guards y round-trip DynamoDB', () => {
         action: 'setBalance',
         ...identity,
         totalDays: 30,
-        adminUserId: SUB,
+        adminUserId: USERNAME,
       });
     expect(setRes.status).toBe(200);
     expect(setRes.body.balance.availableDays).toBe(30);
@@ -42,7 +44,7 @@ describe('Vacation e2e — dispatch, guards y round-trip DynamoDB', () => {
     const balRes = await agent
       .post('/vacation')
       .set('X-System', 'A')
-      .send({ action: 'getBalance', userId: SUB });
+      .send({ action: 'getBalance', userId: USERNAME });
     expect(balRes.status).toBe(200);
     expect(balRes.body.balance.availableDays).toBe(30);
 
@@ -63,7 +65,7 @@ describe('Vacation e2e — dispatch, guards y round-trip DynamoDB', () => {
     const balAfter = await agent
       .post('/vacation')
       .set('X-System', 'A')
-      .send({ action: 'getBalance', userId: SUB });
+      .send({ action: 'getBalance', userId: USERNAME });
     expect(balAfter.body.balance.pendingDays).toBe(3);
     expect(balAfter.body.balance.availableDays).toBe(27);
 
