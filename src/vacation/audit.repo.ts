@@ -3,11 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { randomUUID } from 'crypto';
 import { DynamoService } from '../shared/dynamo/dynamo.service';
 import type { Env } from '../config/env.schema';
-import type {
-  AuditAction,
-  AuditEntityType,
-  AuditLog,
-} from './vacation.types';
+import type { AuditAction, AuditEntityType, AuditLog } from './vacation.types';
 
 export interface WriteAuditInput {
   action: AuditAction;

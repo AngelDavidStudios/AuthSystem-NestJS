@@ -1,11 +1,4 @@
-import {
-  IsIn,
-  IsInt,
-  IsOptional,
-  IsString,
-  Min,
-  MinLength,
-} from 'class-validator';
+import { IsIn, IsInt, IsOptional, IsString, Min } from 'class-validator';
 import { VACATION_TYPES, type VacationType } from '../vacation.types';
 
 const ACTIONS = [

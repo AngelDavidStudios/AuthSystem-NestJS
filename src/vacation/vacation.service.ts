@@ -191,7 +191,9 @@ export class VacationService {
       throw new NotFoundException('Solicitud no encontrada');
     }
     if (request.requesterId !== user.sub) {
-      throw new ForbiddenException('Solo puedes cancelar tus propias solicitudes');
+      throw new ForbiddenException(
+        'Solo puedes cancelar tus propias solicitudes',
+      );
     }
     if (request.status !== 'PENDING') {
       throw new BadRequestException(
@@ -379,7 +381,10 @@ export class VacationService {
 
 // ---- funciones puras (fáciles de testear) --------------------------------
 
-function sumDays(requests: VacationRequest[], status: VacationRequest['status']): number {
+function sumDays(
+  requests: VacationRequest[],
+  status: VacationRequest['status'],
+): number {
   return requests
     .filter((r) => r.status === status)
     .reduce((acc, r) => acc + r.totalDays, 0);

@@ -40,21 +40,18 @@ export class DynamoService {
   }
 
   /** PutItem (crea o reemplaza). Devuelve el objeto escrito. */
-  async put<T extends Record<string, unknown>>(
-    table: string,
-    item: T,
-  ): Promise<T> {
+  async put<T extends object>(table: string, item: T): Promise<T> {
     await this.client.send(
-      new PutItemCommand({ TableName: table, Item: toItem(item) }),
+      new PutItemCommand({
+        TableName: table,
+        Item: toItem(item as Record<string, unknown>),
+      }),
     );
     return item;
   }
 
   /** DeleteItem por clave primaria. */
-  async delete(
-    table: string,
-    key: Record<string, unknown>,
-  ): Promise<void> {
+  async delete(table: string, key: Record<string, unknown>): Promise<void> {
     await this.client.send(
       new DeleteItemCommand({ TableName: table, Key: toItem(key) }),
     );
