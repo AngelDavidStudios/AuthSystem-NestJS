@@ -24,6 +24,10 @@ export interface CognitoTokenSet {
 export interface CognitoIdTokenPayload {
   sub: string;
   email?: string;
+  // Nombre legible del usuario. En federación Google viene del mapeo name→name;
+  // se prefiere sobre `cognito:username` para mostrar en UI (el username de un
+  // usuario federado es del tipo `google_1128992…`).
+  name?: string;
   'cognito:username'?: string;
   'cognito:groups'?: string[];
   exp: number;

@@ -6,6 +6,8 @@ declare module 'iron-session' {
     user?: {
       sub: string;
       email?: string;
+      // Nombre legible (claim `name`); se prefiere al `username` para la UI.
+      name?: string;
       username?: string;
       groups: string[];
       // Sistema por el que el usuario inició sesión (A o B). Los Admins quedan

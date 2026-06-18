@@ -82,6 +82,7 @@ export class AuthController {
     req.session.user = {
       sub: claims.sub,
       email: claims.email,
+      name: claims.name,
       username: claims['cognito:username'],
       groups: claims['cognito:groups'] ?? [],
       loginOrigin: oauth.origin,
@@ -116,7 +117,13 @@ export class AuthController {
     @Headers('x-system') system: string | undefined,
   ): {
     authenticated: boolean;
-    user?: { sub: string; email?: string; username?: string; groups: string[] };
+    user?: {
+      sub: string;
+      email?: string;
+      name?: string;
+      username?: string;
+      groups: string[];
+    };
   } {
     const user = req.session.user;
     // Confinamiento: un Admin solo está "autenticado" en su sistema de origen.
