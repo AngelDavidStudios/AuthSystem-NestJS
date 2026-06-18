@@ -6,6 +6,7 @@ import { RolesModule } from './roles/roles.module';
 import { SessionModule } from './session/session.module';
 import { DynamoModule } from './shared/dynamo/dynamo.module';
 import { VacationModule } from './vacation/vacation.module';
+import { OrganizationModule } from './organization/organization.module';
 import { validateEnv } from './config/env.validation';
 
 @Module({
@@ -17,6 +18,7 @@ import { validateEnv } from './config/env.validation';
     KmsModule,
     RolesModule,
     VacationModule,
+    OrganizationModule,
   ],
   controllers: [],
   providers: [],
