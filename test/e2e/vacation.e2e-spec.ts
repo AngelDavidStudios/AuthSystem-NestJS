@@ -3,8 +3,9 @@ import request from 'supertest';
 import { createE2EApp, loginAs } from '../utils/e2e-app';
 import { setupInMemoryDynamo } from '../utils/dynamo-mock';
 
-// `loginAs` mintea una sesión con sub fijo = 'user-sub-1'.
-const SUB = 'user-sub-1';
+// `loginAs` mintea una sesión con cognito:username = 'tester'. La identidad
+// canónica del módulo es el username (ver VacationService.identityOf), no el sub.
+const SUB = 'tester';
 
 describe('Vacation e2e — dispatch, guards y round-trip DynamoDB', () => {
   let app: INestApplication;

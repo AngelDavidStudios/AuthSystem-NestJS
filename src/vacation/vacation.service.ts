@@ -30,6 +30,17 @@ function isApprover(user: CurrentUserData): boolean {
   );
 }
 
+/**
+ * Identidad canónica del módulo de vacaciones = Cognito username
+ * (`cognito:username`). Es el identificador que usan tanto las vistas de admin
+ * (balances en `wfn-vacation-balances`, nodos del árbol en `wfn-org-nodes`) como
+ * las de usuario en el frontend. Se unifica aquí para que solicitudes, balances
+ * y la resolución de supervisor casen entre sí. Fallback a `sub` por robustez.
+ */
+function identityOf(user: CurrentUserData): string {
+  return user.username ?? user.sub;
+}
+
 @Injectable()
 export class VacationService {
   constructor(
@@ -52,7 +63,7 @@ export class VacationService {
     user: CurrentUserData,
   ): Promise<{ message: string; request: VacationRequest }> {
     // Anti-suplantación: solo puedes crear solicitudes a tu propio nombre.
-    if (params.userId !== user.sub) {
+    if (params.userId !== identityOf(user)) {
       throw new ForbiddenException(
         'No puedes crear solicitudes para otro usuario',
       );
@@ -112,7 +123,7 @@ export class VacationService {
       action: 'REQUEST_CREATED',
       entityType: 'VacationRequest',
       entityId: request.id,
-      userId: user.sub,
+      userId: identityOf(user),
       userEmail: params.userEmail,
       details: { totalDays, type: params.type },
     });
@@ -147,7 +158,7 @@ export class VacationService {
       throw new NotFoundException('Solicitud no encontrada');
     }
     // Solo el supervisor asignado o un aprobador (Admins/Managers).
-    if (request.supervisorId !== user.sub && !isApprover(user)) {
+    if (request.supervisorId !== identityOf(user) && !isApprover(user)) {
       throw new ForbiddenException(
         'No tienes permiso para resolver esta solicitud',
       );
@@ -171,7 +182,7 @@ export class VacationService {
       action: status === 'APPROVED' ? 'REQUEST_APPROVED' : 'REQUEST_REJECTED',
       entityType: 'VacationRequest',
       entityId: id,
-      userId: user.sub,
+      userId: identityOf(user),
       userEmail: user.email ?? '',
       details: { comment },
     });
@@ -190,7 +201,7 @@ export class VacationService {
     if (!request) {
       throw new NotFoundException('Solicitud no encontrada');
     }
-    if (request.requesterId !== user.sub) {
+    if (request.requesterId !== identityOf(user)) {
       throw new ForbiddenException(
         'Solo puedes cancelar tus propias solicitudes',
       );
@@ -212,7 +223,7 @@ export class VacationService {
       action: 'REQUEST_CANCELLED',
       entityType: 'VacationRequest',
       entityId: id,
-      userId: user.sub,
+      userId: identityOf(user),
       userEmail: user.email ?? '',
     });
 
@@ -228,9 +239,10 @@ export class VacationService {
       throw new NotFoundException('Solicitud no encontrada');
     }
     // Visible para el dueño, el supervisor asignado o un aprobador.
+    const me = identityOf(user);
     const visible =
-      request.requesterId === user.sub ||
-      request.supervisorId === user.sub ||
+      request.requesterId === me ||
+      request.supervisorId === me ||
       isApprover(user);
     if (!visible) {
       throw new ForbiddenException('No tienes acceso a esta solicitud');
@@ -242,7 +254,7 @@ export class VacationService {
     userId: string,
     user: CurrentUserData,
   ): Promise<{ requests: VacationRequest[] }> {
-    if (userId !== user.sub && !isAdmin(user)) {
+    if (userId !== identityOf(user) && !isAdmin(user)) {
       throw new ForbiddenException('Solo puedes ver tus propias solicitudes');
     }
     const requests = await this.repo.getRequestsByRequester(userId);
@@ -253,7 +265,7 @@ export class VacationService {
     supervisorId: string,
     user: CurrentUserData,
   ): Promise<{ requests: VacationRequest[] }> {
-    if (supervisorId !== user.sub && !isApprover(user)) {
+    if (supervisorId !== identityOf(user) && !isApprover(user)) {
       throw new ForbiddenException(
         'No tienes permiso para ver estas aprobaciones',
       );
@@ -280,7 +292,7 @@ export class VacationService {
     userId: string,
     user: CurrentUserData,
   ): Promise<{ balance: VacationBalance }> {
-    if (userId !== user.sub && !isAdmin(user)) {
+    if (userId !== identityOf(user) && !isAdmin(user)) {
       throw new ForbiddenException('Solo puedes ver tu propio balance');
     }
     const balance = await this.computeBalance(userId);
