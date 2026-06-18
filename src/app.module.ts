@@ -7,6 +7,7 @@ import { SessionModule } from './session/session.module';
 import { DynamoModule } from './shared/dynamo/dynamo.module';
 import { VacationModule } from './vacation/vacation.module';
 import { OrganizationModule } from './organization/organization.module';
+import { UsersModule } from './users/users.module';
 import { validateEnv } from './config/env.validation';
 
 @Module({
@@ -19,6 +20,7 @@ import { validateEnv } from './config/env.validation';
     RolesModule,
     VacationModule,
     OrganizationModule,
+    UsersModule,
   ],
   controllers: [],
   providers: [],
