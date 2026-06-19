@@ -48,4 +48,21 @@ describe('Auth e2e — sesión y confinamiento por sistema', () => {
     expect(b.body.authenticated).toBe(true);
     expect(a.body).toEqual({ authenticated: false });
   });
+
+  // Regresión: un segundo /auth/login debe RESETEAR la sesión previa, para que
+  // la cookie del handshake lleve solo `oauth` y no `user`+`tokens` (evita pasar
+  // el límite de ~4KB del navegador → "Invalid OAuth state" en el 2.º login).
+  it('un nuevo /auth/login limpia la sesión autenticada previa', async () => {
+    const agent = await loginAs(app, 'A', ['Users']);
+    expect(
+      (await agent.get('/auth/session').set('X-System', 'A')).body.authenticated,
+    ).toBe(true);
+
+    // Reinicia el handshake sin completar el callback: la sesión queda solo con
+    // `oauth`, sin el usuario anterior.
+    await agent.get('/auth/login?origin=A');
+
+    const after = await agent.get('/auth/session').set('X-System', 'A');
+    expect(after.body).toEqual({ authenticated: false });
+  });
 });

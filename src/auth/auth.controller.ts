@@ -52,6 +52,14 @@ export class AuthController {
     const origin: 'A' | 'B' = originRaw === 'B' ? 'B' : 'A';
     const state = this.authService.generateState();
     const finalReturn = this.resolveReturnTo(origin, returnTo);
+    // Resetear cualquier sesión previa antes de arrancar el handshake OIDC: la
+    // cookie del handshake debe llevar SOLO `oauth`. Si se arrastran `user` +
+    // `tokens` (el refreshToken de Cognito es grande), la cookie cifrada supera
+    // el límite de ~4KB del navegador y el `Set-Cookie` se descarta → en el
+    // callback llega la cookie vieja y el `state` no coincide ("Invalid OAuth
+    // state") en el segundo login. También evita arrastrar sesión (fixation).
+    req.session.user = undefined;
+    req.session.tokens = undefined;
     req.session.oauth = { state, returnTo: finalReturn, origin };
     await req.session.save();
     res.redirect(this.authService.buildAuthorizeUrl(state));
