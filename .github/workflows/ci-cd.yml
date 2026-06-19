@@ -42,9 +42,29 @@ jobs:
       - uses: ./.github/actions/setup
       - run: pnpm run test:e2e
 
+  sonar:
+    name: Análisis SonarQube Cloud
+    needs: test-e2e
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Sonar necesita el historial completo para el blame / "new code".
+          fetch-depth: 0
+      - uses: ./.github/actions/setup
+
+      # Genera coverage/lcov.info para que Sonar importe la cobertura de los tests.
+      - name: Tests con cobertura
+        run: pnpm run test:cov
+
+      - name: SonarQube Cloud Scan
+        uses: SonarSource/sonarqube-scan-action@v6
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
   deploy:
     name: Deploy a AWS Lambda
-    needs: test-e2e
+    needs: sonar
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     runs-on: ubuntu-latest
     permissions:
