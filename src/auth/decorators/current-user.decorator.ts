@@ -6,6 +6,9 @@ import type { AuthenticatedUser } from '../strategies/cognito-jwt.strategy';
 export interface CurrentUserData {
   sub: string;
   email?: string;
+  // Nombre legible (claim `name`). Solo presente vía sesión; en Bearer (JWT) no
+  // se extrae, así que puede venir undefined.
+  name?: string;
   username?: string;
   groups: string[];
 }

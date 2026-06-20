@@ -39,6 +39,7 @@ export const EnvSchema = z.object({
     .default('wfn-vacation-balances'),
   DDB_TABLE_ORG_NODES: z.string().min(1).default('wfn-org-nodes'),
   DDB_TABLE_AUDIT_LOGS: z.string().min(1).default('wfn-audit-logs'),
+  DDB_TABLE_SECURE_MESSAGES: z.string().min(1).default('wfn-secure-messages'),
 
   // BFF session (iron-session)
   SESSION_SECRET: z
