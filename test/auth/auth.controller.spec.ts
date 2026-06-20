@@ -22,8 +22,12 @@ const config = {
 function makeAuthService() {
   return {
     generateState: jest.fn().mockReturnValue('state-123'),
-    buildAuthorizeUrl: jest.fn((s: string) => `https://cognito/authorize?state=${s}`),
-    buildLogoutUrl: jest.fn((uri: string) => `https://cognito/logout?uri=${uri}`),
+    buildAuthorizeUrl: jest.fn(
+      (s: string) => `https://cognito/authorize?state=${s}`,
+    ),
+    buildLogoutUrl: jest.fn(
+      (uri: string) => `https://cognito/logout?uri=${uri}`,
+    ),
     exchangeCodeForTokens: jest.fn().mockResolvedValue({
       id_token: 'idt',
       refresh_token: 'rt',
@@ -120,7 +124,11 @@ describe('AuthController (BFF OIDC)', () => {
   });
 
   describe('callback', () => {
-    const oauth = { state: 'state-123', returnTo: `${URL_A}/home`, origin: 'A' };
+    const oauth = {
+      state: 'state-123',
+      returnTo: `${URL_A}/home`,
+      origin: 'A',
+    };
 
     it('intercambia el code, puebla la sesión y redirige a returnTo', async () => {
       const { controller } = makeController();
@@ -143,21 +151,39 @@ describe('AuthController (BFF OIDC)', () => {
     it('lanza si Cognito devuelve error', async () => {
       const { controller } = makeController();
       await expect(
-        controller.callback(undefined, undefined, 'access_denied', makeReq(), makeRes()),
+        controller.callback(
+          undefined,
+          undefined,
+          'access_denied',
+          makeReq(),
+          makeRes(),
+        ),
       ).rejects.toBeInstanceOf(UnauthorizedException);
     });
 
     it('lanza si falta code o state', async () => {
       const { controller } = makeController();
       await expect(
-        controller.callback(undefined, 'state-123', undefined, makeReq({ oauth }), makeRes()),
+        controller.callback(
+          undefined,
+          'state-123',
+          undefined,
+          makeReq({ oauth }),
+          makeRes(),
+        ),
       ).rejects.toBeInstanceOf(UnauthorizedException);
     });
 
     it('lanza si el state no coincide (CSRF)', async () => {
       const { controller } = makeController();
       await expect(
-        controller.callback('code-1', 'WRONG', undefined, makeReq({ oauth }), makeRes()),
+        controller.callback(
+          'code-1',
+          'WRONG',
+          undefined,
+          makeReq({ oauth }),
+          makeRes(),
+        ),
       ).rejects.toBeInstanceOf(UnauthorizedException);
     });
   });
@@ -216,7 +242,9 @@ describe('AuthController (BFF OIDC)', () => {
     it('verifyToken devuelve los claims del request', () => {
       const { controller } = makeController();
       const claims = { sub: 's', email: 'x', groups: [] };
-      const req = { user: claims } as unknown as Request & { user: typeof claims };
+      const req = { user: claims } as unknown as Request & {
+        user: typeof claims;
+      };
       expect(controller.verifyToken(req)).toEqual({ valid: true, claims });
     });
 
@@ -236,9 +264,9 @@ describe('AuthController (BFF OIDC)', () => {
       });
       const result = await controller.refresh(req);
       expect(result).toEqual({ ok: true, expiresIn: 1800 });
-      expect((req.session.tokens as { refreshToken: string }).refreshToken).toBe(
-        'rt2',
-      );
+      expect(
+        (req.session.tokens as { refreshToken: string }).refreshToken,
+      ).toBe('rt2');
       expect(req.session.save).toHaveBeenCalled();
     });
 

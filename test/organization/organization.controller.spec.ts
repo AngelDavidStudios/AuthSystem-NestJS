@@ -39,7 +39,7 @@ describe('OrganizationController (dispatch POST /organization)', () => {
         userName: 'John Doe',
         position: 'Dev',
         department: 'Eng',
-      } as OrganizationActionDto,
+      },
       ADMIN,
     );
     expect(service.createNode).toHaveBeenCalledWith(
@@ -61,14 +61,22 @@ describe('OrganizationController (dispatch POST /organization)', () => {
       'getSubordinates',
     );
     expect(
-      await dispatch({ action: 'assignSupervisor', id: 'n1', supervisorId: 'boss' }),
+      await dispatch({
+        action: 'assignSupervisor',
+        id: 'n1',
+        supervisorId: 'boss',
+      }),
     ).toBe('assignSupervisor');
   });
 
   it('updateNode delega los campos opcionales presentes', async () => {
     const { controller, service } = makeController();
     await controller.dispatch(
-      { action: 'updateNode', id: 'n1', position: 'Lead' } as OrganizationActionDto,
+      {
+        action: 'updateNode',
+        id: 'n1',
+        position: 'Lead',
+      },
       ADMIN,
     );
     expect(service.updateNode).toHaveBeenCalledWith(

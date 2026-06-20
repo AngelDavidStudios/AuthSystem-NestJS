@@ -45,7 +45,7 @@ describe('VacationController (dispatch POST /vacation)', () => {
         userId: 'jdoe',
         userEmail: 'jdoe@example.com',
         userName: 'John Doe',
-      } as VacationActionDto,
+      },
       USER,
     );
     expect(service.createRequest).toHaveBeenCalledWith(
@@ -91,7 +91,7 @@ describe('VacationController (dispatch POST /vacation)', () => {
         userName: 'John Doe',
         totalDays: 20,
         adminUserId: 'boss',
-      } as VacationActionDto,
+      },
       USER,
     );
     expect(service.setBalance).toHaveBeenCalledWith(

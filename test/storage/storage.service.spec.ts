@@ -29,7 +29,11 @@ const USER: CurrentUserData = {
   username: 'jdoe',
   groups: ['Users'],
 };
-const ADMIN: CurrentUserData = { ...USER, username: 'boss', groups: ['Admins'] };
+const ADMIN: CurrentUserData = {
+  ...USER,
+  username: 'boss',
+  groups: ['Admins'],
+};
 
 function makeService(): { service: StorageService; audit: AuditRepo } {
   const config = {
@@ -40,7 +44,9 @@ function makeService(): { service: StorageService; audit: AuditRepo } {
           ? BUCKET
           : undefined,
   } as unknown as ConfigService<Env, true>;
-  const audit = { write: jest.fn().mockResolvedValue(undefined) } as unknown as AuditRepo;
+  const audit = {
+    write: jest.fn().mockResolvedValue(undefined),
+  } as unknown as AuditRepo;
   return { service: new StorageService(config, audit), audit };
 }
 

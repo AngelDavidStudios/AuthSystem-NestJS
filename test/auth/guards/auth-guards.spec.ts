@@ -68,7 +68,9 @@ describe('HybridAuthGuard', () => {
   it('permite por cookie sin tocar el JwtGuard', async () => {
     const jwt = { canActivate: jest.fn() } as unknown as JwtAuthGuard;
     const guard = new HybridAuthGuard(jwt);
-    const ok = await guard.canActivate(ctx({ session: { user: { sub: 's' } } }));
+    const ok = await guard.canActivate(
+      ctx({ session: { user: { sub: 's' } } }),
+    );
     expect(ok).toBe(true);
     expect(jwt.canActivate).not.toHaveBeenCalled();
   });

@@ -40,12 +40,22 @@ describe('RolesService (Cognito groups)', () => {
     });
     const groups = await service.listGroups();
     expect(groups).toEqual([
-      { name: 'Admins', description: 'admins', precedence: 1, roleArn: undefined },
-      { name: 'Users', description: undefined, precedence: undefined, roleArn: undefined },
+      {
+        name: 'Admins',
+        description: 'admins',
+        precedence: 1,
+        roleArn: undefined,
+      },
+      {
+        name: 'Users',
+        description: undefined,
+        precedence: undefined,
+        roleArn: undefined,
+      },
     ]);
-    expect(cognitoMock.commandCalls(ListGroupsCommand)[0].args[0].input).toMatchObject(
-      { UserPoolId: POOL },
-    );
+    expect(
+      cognitoMock.commandCalls(ListGroupsCommand)[0].args[0].input,
+    ).toMatchObject({ UserPoolId: POOL });
   });
 
   it('listGroups devuelve [] cuando el pool no tiene grupos', async () => {
@@ -58,15 +68,24 @@ describe('RolesService (Cognito groups)', () => {
     await service.addUserToGroup('Admins', 'jdoe');
     expect(
       cognitoMock.commandCalls(AdminAddUserToGroupCommand)[0].args[0].input,
-    ).toMatchObject({ UserPoolId: POOL, GroupName: 'Admins', Username: 'jdoe' });
+    ).toMatchObject({
+      UserPoolId: POOL,
+      GroupName: 'Admins',
+      Username: 'jdoe',
+    });
   });
 
   it('removeUserFromGroup envía el comando correspondiente', async () => {
     cognitoMock.on(AdminRemoveUserFromGroupCommand).resolves({});
     await service.removeUserFromGroup('Admins', 'jdoe');
     expect(
-      cognitoMock.commandCalls(AdminRemoveUserFromGroupCommand)[0].args[0].input,
-    ).toMatchObject({ UserPoolId: POOL, GroupName: 'Admins', Username: 'jdoe' });
+      cognitoMock.commandCalls(AdminRemoveUserFromGroupCommand)[0].args[0]
+        .input,
+    ).toMatchObject({
+      UserPoolId: POOL,
+      GroupName: 'Admins',
+      Username: 'jdoe',
+    });
   });
 
   it('listGroupsForUser mapea los grupos del usuario', async () => {
@@ -75,7 +94,12 @@ describe('RolesService (Cognito groups)', () => {
     });
     const groups = await service.listGroupsForUser('jdoe');
     expect(groups).toEqual([
-      { name: 'Managers', description: undefined, precedence: 2, roleArn: undefined },
+      {
+        name: 'Managers',
+        description: undefined,
+        precedence: 2,
+        roleArn: undefined,
+      },
     ]);
   });
 });

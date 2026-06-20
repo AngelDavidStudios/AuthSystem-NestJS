@@ -33,9 +33,9 @@ describe('UsersController (dispatch POST /users)', () => {
     expect(await dispatch({ action: 'deleteUser', username: 'jdoe' })).toBe(
       'deleteUser',
     );
-    expect(
-      await dispatch({ action: 'getUserGroups', username: 'jdoe' }),
-    ).toBe('getUserGroups');
+    expect(await dispatch({ action: 'getUserGroups', username: 'jdoe' })).toBe(
+      'getUserGroups',
+    );
   });
 
   it('createUser delega con el payload mapeado', async () => {
@@ -45,7 +45,7 @@ describe('UsersController (dispatch POST /users)', () => {
         action: 'createUser',
         email: 'new@example.com',
         username: 'newbie',
-      } as UsersActionDto,
+      },
       ADMIN,
     );
     expect(service.createUser).toHaveBeenCalledWith(
@@ -57,7 +57,11 @@ describe('UsersController (dispatch POST /users)', () => {
   it('addToGroup / removeFromGroup pasan username + groupName', async () => {
     const { controller, service } = makeController();
     await controller.dispatch(
-      { action: 'addToGroup', username: 'jdoe', groupName: 'Admins' } as UsersActionDto,
+      {
+        action: 'addToGroup',
+        username: 'jdoe',
+        groupName: 'Admins',
+      },
       ADMIN,
     );
     expect(service.addToGroup).toHaveBeenCalledWith('jdoe', 'Admins', ADMIN);
@@ -67,7 +71,7 @@ describe('UsersController (dispatch POST /users)', () => {
         action: 'removeFromGroup',
         username: 'jdoe',
         groupName: 'Admins',
-      } as UsersActionDto,
+      },
       ADMIN,
     );
     expect(service.removeFromGroup).toHaveBeenCalledWith(
@@ -84,7 +88,7 @@ describe('UsersController (dispatch POST /users)', () => {
         action: 'resetPassword',
         username: 'jdoe',
         newPassword: 'S3cret!',
-      } as UsersActionDto,
+      },
       ADMIN,
     );
     expect(service.resetPassword).toHaveBeenCalledWith(

@@ -21,7 +21,7 @@ function node(over: Partial<OrganizationNode>): OrganizationNode {
     level: 1,
     createdAt: '2026-06-19T00:00:00.000Z',
     ...over,
-  } as OrganizationNode;
+  };
 }
 
 describe('OrganizationRepo (árbol wfn-org-nodes)', () => {

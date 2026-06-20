@@ -28,7 +28,7 @@ describe('StorageController (dispatch POST /storage)', () => {
   it('getUploadUrl pasa contentType + usuario', async () => {
     const { controller, service } = makeController();
     await controller.dispatch(
-      { action: 'getUploadUrl', contentType: 'image/png' } as StorageActionDto,
+      { action: 'getUploadUrl', contentType: 'image/png' },
       USER,
     );
     expect(service.getUploadUrl).toHaveBeenCalledWith('image/png', USER);
@@ -36,22 +36,19 @@ describe('StorageController (dispatch POST /storage)', () => {
 
   it('get delega en getMyPictureUrl con el usuario de sesión', async () => {
     const { controller, service } = makeController();
-    await controller.dispatch({ action: 'get' } as StorageActionDto, USER);
+    await controller.dispatch({ action: 'get' }, USER);
     expect(service.getMyPictureUrl).toHaveBeenCalledWith(USER);
   });
 
   it('getByUser pasa username objetivo + usuario', async () => {
     const { controller, service } = makeController();
-    await controller.dispatch(
-      { action: 'getByUser', username: 'other' } as StorageActionDto,
-      USER,
-    );
+    await controller.dispatch({ action: 'getByUser', username: 'other' }, USER);
     expect(service.getUserPictureUrl).toHaveBeenCalledWith('other', USER);
   });
 
   it('delete delega en delete con el usuario de sesión', async () => {
     const { controller, service } = makeController();
-    await controller.dispatch({ action: 'delete' } as StorageActionDto, USER);
+    await controller.dispatch({ action: 'delete' }, USER);
     expect(service.delete).toHaveBeenCalledWith(USER);
   });
 

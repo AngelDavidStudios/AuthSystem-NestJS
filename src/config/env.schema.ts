@@ -25,10 +25,7 @@ export const EnvSchema = z.object({
 
   // S3 — bucket privado para fotos de perfil (creado manualmente en AWS).
   // Región desde AWS_REGION (Lambda lo inyecta). Key determinística por usuario.
-  S3_BUCKET_PROFILE_PICTURES: z
-    .string()
-    .min(1)
-    .default('wfn-profile-pictures'),
+  S3_BUCKET_PROFILE_PICTURES: z.string().min(1).default('wfn-profile-pictures'),
 
   // DynamoDB — tablas del módulo de vacaciones (creadas manualmente en AWS).
   // En Lambda la región sale del runtime; en local de AWS_REGION del .env.

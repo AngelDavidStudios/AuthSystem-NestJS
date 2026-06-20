@@ -55,7 +55,8 @@ describe('Auth e2e — sesión y confinamiento por sistema', () => {
   it('un nuevo /auth/login limpia la sesión autenticada previa', async () => {
     const agent = await loginAs(app, 'A', ['Users']);
     expect(
-      (await agent.get('/auth/session').set('X-System', 'A')).body.authenticated,
+      (await agent.get('/auth/session').set('X-System', 'A')).body
+        .authenticated,
     ).toBe(true);
 
     // Reinicia el handshake sin completar el callback: la sesión queda solo con
