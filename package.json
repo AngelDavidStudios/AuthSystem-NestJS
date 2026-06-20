@@ -81,14 +81,24 @@
     ],
     "rootDir": ".",
     "roots": [
-      "<rootDir>/test"
+      "<rootDir>/test",
+      "<rootDir>/src"
     ],
     "testRegex": ".*\\.spec\\.ts$",
     "transform": {
       "^.+\\.(t|j)s$": "ts-jest"
     },
     "collectCoverageFrom": [
-      "src/**/*.(t|j)s"
+      "src/**/*.ts",
+      "!src/**/*.module.ts",
+      "!src/**/dto/**",
+      "!src/**/*.types.ts",
+      "!src/**/decorators/**",
+      "!src/main.ts",
+      "!src/lambda.ts",
+      "!src/app.setup.ts",
+      "!src/config/env.schema.ts",
+      "!src/config/env.validation.ts"
     ],
     "coverageDirectory": "./coverage",
     "testEnvironment": "node"
