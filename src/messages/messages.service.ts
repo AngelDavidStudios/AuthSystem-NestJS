@@ -25,10 +25,18 @@ function canDelete(user: CurrentUserData): boolean {
   );
 }
 
-/** Quita los campos cifrados de un registro para exponer solo metadatos. */
+/** Proyecta un registro a solo metadatos (sin los campos cifrados). */
 function toSummary(record: SecureMessageRecord): SecureMessageSummary {
-  const { encryptedPayload: _p, encryptedDataKey: _k, ...summary } = record;
-  return summary;
+  return {
+    messageId: record.messageId,
+    subject: record.subject,
+    type: record.type,
+    confidentialityLevel: record.confidentialityLevel,
+    sentBy: record.sentBy,
+    sentByName: record.sentByName,
+    sentAt: record.sentAt,
+    status: record.status,
+  };
 }
 
 export interface SendMessageInput {
@@ -107,7 +115,6 @@ export class MessagesService {
    */
   async decrypt(
     messageId: string,
-    _user: CurrentUserData,
   ): Promise<SecureMessageContent & { messageId: string; status: 'read' }> {
     const record = await this.repo.get(messageId);
     if (!record) {
@@ -142,9 +149,7 @@ export class MessagesService {
     user: CurrentUserData,
   ): Promise<{ deleted: true }> {
     if (!canDelete(user)) {
-      throw new ForbiddenException(
-        'No tienes permiso para eliminar mensajes',
-      );
+      throw new ForbiddenException('No tienes permiso para eliminar mensajes');
     }
     const record = await this.repo.get(messageId);
     if (!record) {

@@ -53,7 +53,7 @@ export class MessagesController {
         return this.messages.list();
 
       case 'decrypt':
-        return this.messages.decrypt(req(dto.messageId, 'messageId'), user);
+        return this.messages.decrypt(req(dto.messageId, 'messageId'));
 
       case 'delete':
         return this.messages.delete(req(dto.messageId, 'messageId'), user);

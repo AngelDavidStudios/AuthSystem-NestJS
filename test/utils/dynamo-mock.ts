@@ -16,8 +16,8 @@ type Item = Record<string, unknown>;
  * así que el round-trip con util-dynamodb del servicio es transparente.
  *
  * Heurística de clave primaria (suficiente para el esquema del módulo): `id` si
- * existe, si no `userId` (balances). Query resuelve el patrón `#k = :v` que emite
- * DynamoService.query (tabla base o GSI).
+ * existe, si no `userId` (balances), si no `messageId` (mensajes seguros). Query
+ * resuelve el patrón `#k = :v` que emite DynamoService.query (tabla base o GSI).
  */
 export function setupInMemoryDynamo() {
   const ddb = mockClient(DynamoDBClient);
@@ -28,8 +28,11 @@ export function setupInMemoryDynamo() {
     if (!store.has(key)) store.set(key, []);
     return store.get(key)!;
   };
-  const pkAttrs = (item: Item): string[] =>
-    item.id !== undefined ? ['id'] : ['userId'];
+  const pkAttrs = (item: Item): string[] => {
+    if (item.id !== undefined) return ['id'];
+    if (item.userId !== undefined) return ['userId'];
+    return ['messageId'];
+  };
   const matches = (item: Item, key: Item, attrs: string[]): boolean =>
     attrs.every((a) => JSON.stringify(item[a]) === JSON.stringify(key[a]));
 
